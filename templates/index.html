@@ -16,6 +16,10 @@
     color: #333;
     padding: 20px;
   }
+  #invoicenumber
+  {
+    color:#2e7d32
+  }
 
   /* Controls bar */
   .controls {
@@ -73,7 +77,7 @@
   }
   .invoice-header .invoice-title .invoice-number-display {
     font-size: 16px;
-    color: #666;
+    color: green;
   }
 
   .header-divider {
@@ -273,7 +277,27 @@
     .editable { border: none !important; background: transparent !important; padding: 0; }
     .remove-row { display: none; }
   }
+  /*Amount in words*/
+  .amount-in-words {
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  background: #f9f9f9;
+  border-left: 4px solid #2e7d32;
+  font-size: 13.5px;
+  color: #444;
+}
+.amount-in-words span {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+#save
+{
+  color:green
+}
+
 </style>
+
 </head>
 <body>
 
@@ -292,7 +316,9 @@
     </div>
     <div class="invoice-title">
       <h1>INVOICE</h1>
-      <div class="invoice-number-display">#<span contenteditable="true" class="editable editable-inline" id="invoiceNumber">FF-001</span></div>
+      <div class="invoice-number-display"><p id="invoicenumber">INVOICE NUMBER</p>
+        <span contenteditable="true" class="editable editable-inline" id="invoiceNumber">FF-001</span>
+      </div>
     </div>
   </div>
 
@@ -301,26 +327,28 @@
   <!-- Company Info -->
   <div class="company-info">
     <p class="tagline">Eat Smart, Live Well</p>
-    <p><span class="icon">📞</span> 0244507568</p>
-    <p><span class="icon">✉</span> fruityflicks@gmail.com</p>
+    <p><span class="icon">📞</span>0256099995</p> <!--0256099996-->
+    <p><span class="icon">✉</span>fruityflicks@gmail.com</p>
+    <p><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="15">
+          <path fill="#25D366" d="M16 0C7.164 0 0 7.163 0 16c0 2.833.738 5.49 2.027 7.8L0 32l8.418-2.004A15.93 15.93 0 0 0 16 32c8.836 0 16-7.163 16-16S24.836 0 16 0z"/>
+           <path fill="#fff" d="M23.52 19.63c-.31-.155-1.833-.902-2.117-.005-.283.21-.94.902-1.155 1.08-.211.18-.422.2-.783.025-.36-.175-1.522-.56-2.9-1.788-1.072-.955-1.795-2.135-2.006-2.495-.21-.36-.022-.555.158-.734.163-.162.36-.422.54-.633.18-.21.24-.36.36-.6.12-.24.06-.45-.03-.633-.09-.18-.783-1.89-1.073-2.587-.283-.68-.57-.587-.783-.598l-.666-.012a1.28 1.28 0 0 0-.926.435c-.318.347-1.215 1.187-1.215 2.894s1.244 3.356 1.416 3.587c.175.232 2.447 3.733 5.928 5.238.828.357 1.474.57 1.977.73.83.264 1.587.226 2.184.137.667-.1 2.054-.84 2.344-1.652.29-.812.29-1.508.203-1.653-.086-.143-.317-.23-.627-.385z"/>
+           </svg> </span> 0256099996</p>
     <p><span class="icon">📍</span>10 Moole Street,  Dansoman Exhibition Roundabout</p>
   </div>
 
   <hr class="section-divider">
-
   <!-- Bill To + Invoice Details -->
+<form action="/invoice" method="POST">  
   <div class="bill-details-row">
     <div class="bill-to">
       <h3>Bill To</h3>
-      <p><span contenteditable="true" class="editable" id="billName">Client Name</span></p>
-      <p><span contenteditable="true" class="editable" id="billAddress">Client Address</span></p>
-      <p><span contenteditable="true" class="editable" id="billContact">Contact Person</span></p>
+      <p><span contenteditable="true" id="client_name"></span>Client Name:<span class="editable editable-inline" contenteditable="true"></span></p>
+      <p><span contenteditable="true" id="client_address"></span>Client Address:<span class="editable editable-inline" contenteditable="true"></span></p>
+      <p><span contenteditable="true" id="contact_person"></span>Contact person:<span class="editable editable-inline" contenteditable="true"></span></p>
     </div>
     <div class="invoice-details">
       <h3>Invoice Details</h3>
-      <p><span class="label">Issue Date:</span> <input type="date" class="editable editable-inline" id="invoiceDate" value="2026-01-16"></p>
-      <p><span class="label">Delivery Date:</span> <input type="date" class="editable editable-inline" id="deliveryDate" value="2026-01-16"></p>
-      <p><span class="label">Terms:</span> <span contenteditable="true" class="editable editable-inline" id="terms">Net 30</span></p>
+      <p><span class="label">Delivery Date:</span> <input type="date" class="editable editable-inline" id="deliveryDate" value="0000-00-00"></p>
     </div>
   </div>
 
@@ -337,10 +365,10 @@
     </thead>
     <tbody id="itemsBody">
       <tr>
-        <td><span contenteditable="true" class="editable">Fruit Packs</span></td>
-        <td><input type="number" class="editable" value="0" min="0" oninput="calcRow(this)"></td>
-        <td><input type="number" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
-        <td class="amount-cell">0.00</td>
+        <td><span contenteditable="true" class="editable" id="desciption">Fruit Packs</span></td>
+        <td><input type="number" id="quantity" class="editable" value="0" min="0" oninput="calcRow(this)"></td>
+        <td><input type="number" id="unit_price" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
+        <td id="total" class="amount-cell">0.00</td>
         <td><button class="remove-row" onclick="removeRow(this)" title="Remove">×</button></td>
       </tr>
     </tbody>
@@ -351,27 +379,31 @@
     <div class="totals-table">
       <div class="row">
         <span class="label">Subtotal:</span>
-        <span class="value">GHS <span id="subtotal">0.00</span></span>
-      </div>
-      <div class="row">
-        <span class="label">Tax (<span contenteditable="true" id="taxRate" class="editable" style="min-width:30px;padding:1px 4px;display:inline-block;">0</span>%):</span>
-        <span class="value">GHS <span id="taxAmount">0.00</span></span>
+        <span class="value">GHS <span id="sub_total">0.00</span></span>
       </div>
       <div class="row total-row">
         <span class="label">TOTAL:</span>
-        <span class="value">GHS <span id="totalAmount">0.00</span></span>
+        <span class="value">GHS <span id="total_amount">0.00</span></span>
       </div>
     </div>
   </div>
-
+  <!--For amount in words-->
+  <div class="amount-in-words">
+  <span>Amount in Words:</span> <span id="amount_words">Zero Ghana Cedis Only</span>
+  </div>
   <!-- Payment Info -->
   <div class="payment-info">
     <h3>Payment Information</h3>
-    <p><span class="label">Bank:</span> <span contenteditable="true" class="editable editable-inline">Stanbic Bank</span></p>
-    <p><span class="label">Account Name:</span> <span contenteditable="true" class="editable editable-inline">Fruity Flicks</span></p>
-    <p><span class="label">Account Number:</span> <span contenteditable="true" class="editable editable-inline">9040014197480</span></p>
-    <p><span class="label">Mobile Money:</span> <span contenteditable="true" class="editable editable-inline">+233-24-450-7568</span></p>
+    <p><span class="label">Bank:</span> <span contenteditable="true" aria-readonly="true">Stanbic Bank</span></p>
+    <p><span class="label">Account Name:</span> <span contenteditable="true" aria-readonly="true">Fruity Flicks</span></p>
+    <p><span class="label">Account Number:</span> <span contenteditable="true" aria-readonly="true">9040014197480</span></p>
+    <p><span class="label">Mobile Money:</span> <span contenteditable="true" aria-readonly="true">0243869554</span></p>
+    <p><span class="label">Merchant ID:</span> <span contenteditable="true" aria-readonly="true">114356</span></p>
   </div>
+  <button id="save">Save</button>
+  </form>
+
+
 
   <!-- Footer -->
   <div class="invoice-footer">
@@ -387,31 +419,29 @@
 
   // Calculate row amount
   function calcRow(input) {
-    const row = input.closest('tr');
-    const qty = parseFloat(row.querySelectorAll('input[type="number"]')[0].value) || 0;
-    const price = parseFloat(row.querySelectorAll('input[type="number"]')[1].value) || 0;
-    const amount = qty * price;
-    row.querySelector('.amount-cell').textContent = amount.toFixed(2);
-    calcTotals();
-  }
-
+  const row = input.closest('tr');
+  const qty = parseFloat(row.querySelectorAll('input[type="number"]')[0].value) || 0;
+  const price = parseFloat(row.querySelectorAll('input[type="number"]')[1].value) || 0;
+  const amount = qty * price;
+  row.querySelector('.amount-cell').textContent = amount.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  calcTotals();
+}
   // Calculate totals
   function calcTotals() {
-    let subtotal = 0;
-    document.querySelectorAll('#itemsBody tr').forEach(row => {
-      subtotal += parseFloat(row.querySelector('.amount-cell').textContent) || 0;
-    });
-    const taxRate = parseFloat(document.getElementById('taxRate').textContent) || 0;
-    const tax = subtotal * (taxRate / 100);
-    const total = subtotal + tax;
+  let subtotal = 0;
+  document.querySelectorAll('#itemsBody tr').forEach(row => {
+    const raw = row.querySelector('.amount-cell').textContent.replace(/,/g, '');
+    subtotal += parseFloat(raw) || 0;
+  });
 
-    document.getElementById('subtotal').textContent = subtotal.toFixed(2);
-    document.getElementById('taxAmount').textContent = tax.toFixed(2);
-    document.getElementById('totalAmount').textContent = total.toFixed(2);
-  }
+  const total = subtotal;
 
-  // Tax rate change listener
-  document.getElementById('taxRate').addEventListener('input', calcTotals);
+  document.getElementById('subtotal').textContent = subtotal.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('taxAmount').textContent = '0.00';
+  document.getElementById('totalAmount').textContent = total.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('amountWords').textContent = numberToWords(total);
+}
+ 
 
   // Add new row
   function addRow() {
@@ -444,9 +474,8 @@
     document.getElementById('billName').textContent = '';
     document.getElementById('billAddress').textContent = '';
     document.getElementById('billContact').textContent = '';
-    document.getElementById('invoiceDate').value = '';
     document.getElementById('deliveryDate').value = '';
-    document.getElementById('terms').textContent = 'Net 30';
+    
 
     const tbody = document.getElementById('itemsBody');
     tbody.innerHTML = `
@@ -495,6 +524,34 @@
       removeBtns.forEach(btn => btn.style.display = '');
     });
   }
+  function numberToWords(amount) {
+  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven',
+    'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen',
+    'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty',
+    'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  function convert(n) {
+    if (n === 0) return '';
+    if (n < 20) return ones[n] + ' ';
+    if (n < 100) return tens[Math.floor(n / 10)] + ' ' + ones[n % 10] + ' ';
+    if (n < 1000) return ones[Math.floor(n / 100)] + ' Hundred ' + convert(n % 100);
+    if (n < 1000000) return convert(Math.floor(n / 1000)) + 'Thousand ' + convert(n % 1000);
+    return convert(Math.floor(n / 1000000)) + 'Million ' + convert(n % 1000000);
+  }
+
+  const cedis = Math.floor(amount);
+  const pesewas = Math.round((amount - cedis) * 100);
+
+  let result = cedis === 0 ? 'Zero' : convert(cedis).trim();
+  result += ' Ghana Cedi' + (cedis !== 1 ? 's' : '');
+
+  if (pesewas > 0) {
+    result += ' and ' + convert(pesewas).trim() + ' Pesewa' + (pesewas !== 1 ? 's' : '');
+  }
+
+  return result + ' Only';
+}
 </script>
 </body>
 </html>
