@@ -338,17 +338,18 @@
 
   <hr class="section-divider">
   <!-- Bill To + Invoice Details -->
-<form action="/invoice" method="POST">  
+  <form action="/invoice" method="POST">  
+
   <div class="bill-details-row">
     <div class="bill-to">
       <h3>Bill To</h3>
-      <p><span contenteditable="true" id="client_name"></span>Client Name:<span class="editable editable-inline" contenteditable="true"></span></p>
-      <p><span contenteditable="true" id="client_address"></span>Client Address:<span class="editable editable-inline" contenteditable="true"></span></p>
-      <p><span contenteditable="true" id="contact_person"></span>Contact person:<span class="editable editable-inline" contenteditable="true"></span></p>
+      <p><span class="label">Client Name:</span><input type="text" name="client_name" class="editable editable-inline" required></input></p>
+      <p><span class="label">Client Address:</span><input type="text" name="client_address" class="editable editable-inline" required></input></p>
+      <p><span class="label">Contact Person:</span><input type="text" name="contact_person" class="editable editable-inline" required></input></p>
     </div>
     <div class="invoice-details">
       <h3>Invoice Details</h3>
-      <p><span class="label">Delivery Date:</span> <input type="date" class="editable editable-inline" id="deliveryDate" value="0000-00-00"></p>
+      <p><span class="label">Delivery Date:</span><input type="date" class="editable editable-inline" name="delivery_date" value="0000-00-00"></p>
     </div>
   </div>
 
@@ -365,31 +366,31 @@
     </thead>
     <tbody id="itemsBody">
       <tr>
-        <td><span contenteditable="true" class="editable" id="desciption">Fruit Packs</span></td>
-        <td><input type="number" id="quantity" class="editable" value="0" min="0" oninput="calcRow(this)"></td>
-        <td><input type="number" id="unit_price" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
+        <td><span contenteditable="true" class="editable" name="desciption">Fruit Packs</span></td>
+        <td><input type="number" name="quantity" class="editable" value="0" min="0" oninput="calcRow(this)"></td>
+        <td><input type="number" name="unit_price" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
         <td id="total" class="amount-cell">0.00</td>
         <td><button class="remove-row" onclick="removeRow(this)" title="Remove">×</button></td>
       </tr>
     </tbody>
   </table>
-
+  
   <!-- Totals -->
   <div class="totals-section">
     <div class="totals-table">
       <div class="row">
         <span class="label">Subtotal:</span>
-        <span class="value">GHS <span id="sub_total">0.00</span></span>
+        <span class="value">GHS <span name="sub_total">0.00</span></span>
       </div>
       <div class="row total-row">
         <span class="label">TOTAL:</span>
-        <span class="value">GHS <span id="total_amount">0.00</span></span>
+        <span class="value">GHS <span name="total_amount">0.00</span></span>
       </div>
     </div>
   </div>
   <!--For amount in words-->
   <div class="amount-in-words">
-  <span>Amount in Words:</span> <span id="amount_words">Zero Ghana Cedis Only</span>
+  <span>Amount in Words:</span> <span name="amount_words">Zero Ghana Cedis Only</span>
   </div>
   <!-- Payment Info -->
   <div class="payment-info">
@@ -400,8 +401,11 @@
     <p><span class="label">Mobile Money:</span> <span contenteditable="true" aria-readonly="true">0243869554</span></p>
     <p><span class="label">Merchant ID:</span> <span contenteditable="true" aria-readonly="true">114356</span></p>
   </div>
-  <button id="save">Save</button>
+  <button type="submit">Save</button>
   </form>
+
+  
+  
 
 
 
