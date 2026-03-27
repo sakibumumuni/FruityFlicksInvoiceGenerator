@@ -24,6 +24,10 @@
   document.getElementById('sub_total').textContent = subtotal.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   document.getElementById('total_amount').textContent = total.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   document.getElementById('amount_words').textContent = numberToWords(total);
+  // Update hidden inputs for form submission
+  document.getElementById('sub_total_input').value = subtotal.toFixed(2);
+  document.getElementById('total_amount_input').value = total.toFixed(2);
+  document.getElementById('amount_words_input').value = numberToWords(total);
 }
  
 
@@ -32,11 +36,11 @@
     const tbody = document.getElementById('itemsBody');
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><span contenteditable="true" class="editable">New Item</span></td>
-      <td><input type="number" class="editable" value="1" min="0" oninput="calcRow(this)"></td>
-      <td><input type="number" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
+      <td><input type="text" name="description[]" class="editable" value="New Item"></td>
+      <td><input type="number" name="quantity[]" class="editable" value="1" min="0" oninput="calcRow(this)"></td>
+      <td><input type="number" name="unit_price[]" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
       <td class="amount-cell">0.00</td>
-      <td><button class="remove-row" onclick="removeRow(this)" title="Remove">×</button></td>
+      <td><button type="button" class="remove-row" onclick="removeRow(this)" title="Remove">×</button></td>
     `;
     tbody.appendChild(tr);
     calcTotals();
@@ -55,20 +59,20 @@
   function clearForm() {
     if (!confirm('Clear all fields?')) return;
     document.getElementById('invoiceNumber').textContent = 'FF-';
-    document.getElementById('billName').textContent = '';
-    document.getElementById('billAddress').textContent = '';
-    document.getElementById('billContact').textContent = '';
-    document.getElementById('deliveryDate').value = '';
+    document.getElementById('client_name').value = '';
+    document.getElementById('client_address').value = '';
+    document.getElementById('contact_person').value = '';
+    document.getElementById('delivery_date').value = '';
     
 
     const tbody = document.getElementById('itemsBody');
     tbody.innerHTML = `
       <tr>
-        <td><span contenteditable="true" class="editable"></span></td>
-        <td><input type="number" class="editable" value="0" min="0" oninput="calcRow(this)"></td>
-        <td><input type="number" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
+        <td><input type="text" name="description[]" class="editable" value=""></td>
+        <td><input type="number" name="quantity[]" class="editable" value="0" min="0" oninput="calcRow(this)"></td>
+        <td><input type="number" name="unit_price[]" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
         <td class="amount-cell">0.00</td>
-        <td><button class="remove-row" onclick="removeRow(this)" title="Remove">×</button></td>
+        <td><button type="button" class="remove-row" onclick="removeRow(this)" title="Remove">×</button></td>
       </tr>
     `;
     calcTotals();
