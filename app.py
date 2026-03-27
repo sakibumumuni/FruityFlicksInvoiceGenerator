@@ -4,13 +4,23 @@ import pymongo
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+from flask import Flask, render_template, request, flash, redirect, url_for
+import os
+import pymongo
+from dotenv import load_dotenv
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback-secret-key')
 
 load_dotenv()
 
 mongodb_url = os.environ.get('MONGODB_URL')
 client = pymongo.MongoClient(mongodb_url)
 db = client.fruityflicks
+
+@app.route('/')
+def home():
+    return redirect(url_for('get_invoices'))
 
 
 @app.route('/invoice', methods=['POST', 'GET'])
@@ -54,6 +64,11 @@ def get_invoices():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
+
+
+
+
+
 
 
 
