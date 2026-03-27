@@ -9,17 +9,9 @@
 </head>
 <body>
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div style="background:#2e7d32;color:white;padding:10px 20px;text-align:center;font-weight:bold;">
-  {{ messages[0] }}
-</div>
-{% endif %}
-{% endwith %}
-
 <div class="controls">
   <button class="btn-add" onclick="addRow()">+ Add Item</button>
-  <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
+  <button class="btn-download" onclick="saveAndDownload()">⬇ Save & Download</button>
   <button class="btn-clear" onclick="clearForm()">✕ Clear All</button>
 </div>
 
@@ -121,7 +113,6 @@
     <p><span class="label">Mobile Money:</span> <span contenteditable="true" aria-readonly="true">0243869554</span></p>
     <p><span class="label">Merchant ID:</span> <span contenteditable="true" aria-readonly="true">114356</span></p>
   </div>
-  <button type="submit">Save</button>
   </form>
 
   <!-- Footer -->

@@ -78,6 +78,51 @@
     calcTotals();
   }
 
+  // Save to database and download PDF
+  function saveAndDownload() {
+    const form = document.querySelector('form');
+
+    // Validate required fields
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    // Make sure hidden inputs have latest values
+    calcTotals();
+
+    // Save to database via AJAX
+    const formData = new FormData(form);
+    fetch('/invoice', {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        showNotification('Invoice saved & downloading PDF...');
+        downloadPDF();
+      }
+    })
+    .catch(() => {
+      showNotification('Failed to save. Downloading PDF anyway...', true);
+      downloadPDF();
+    });
+  }
+
+  function showNotification(message, isError) {
+    let banner = document.getElementById('notification-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'notification-banner';
+      document.body.insertBefore(banner, document.body.firstChild);
+    }
+    banner.textContent = message;
+    banner.style.cssText = 'padding:10px 20px;text-align:center;font-weight:bold;color:white;background:' + (isError ? '#c62828' : '#2e7d32');
+    setTimeout(() => banner.remove(), 4000);
+  }
+
   // Download PDF
   function downloadPDF() {
     const invoice = document.getElementById('invoice');

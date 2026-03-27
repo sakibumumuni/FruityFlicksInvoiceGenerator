@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 import os
 import pymongo
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'fallback-secret-key')
+#app.secret_key = os.environ.get('SECRET_KEY', 'fallback-secret-key')
 
 load_dotenv()
 
@@ -49,6 +49,11 @@ def get_invoices():
         }
 
         db.invoices.insert_one(invoices_data)
+
+        # If AJAX request, return JSON instead of redirect
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'status': 'success', 'message': 'Invoice saved successfully!'})
+
         flash('Invoice saved successfully!')
         return redirect(url_for('get_invoices'))
 
