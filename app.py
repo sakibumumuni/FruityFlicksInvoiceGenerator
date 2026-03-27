@@ -4,12 +4,6 @@ import pymongo
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-from flask import Flask, render_template, request, flash, redirect, url_for
-import os
-import pymongo
-from dotenv import load_dotenv
-
-app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'fallback-secret-key')
 
 load_dotenv()
