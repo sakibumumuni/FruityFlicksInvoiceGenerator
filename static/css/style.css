@@ -283,7 +283,118 @@
   color: #2e7d32;
 }
 
-#save
-{
-  color:green
+/* Mobile responsive */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .controls {
+    justify-content: center;
+    gap: 6px;
+  }
+  .controls button {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .invoice-wrapper {
+    padding: 20px 15px 20px;
+  }
+
+  /* Header - stack logo and title */
+  .invoice-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .invoice-header .logo img {
+    width: 140px;
+    margin-bottom: 10px;
+  }
+  .invoice-header .invoice-title {
+    text-align: center;
+  }
+  .invoice-header .invoice-title h1 {
+    font-size: 26px;
+  }
+
+  .header-divider {
+    width: 100%;
+  }
+
+  /* Bill To / Invoice Details - stack vertically */
+  .bill-details-row {
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  /* Editable inputs - full width */
+  .editable {
+    min-width: 0;
+    width: 100%;
+  }
+  .editable-inline {
+    min-width: 0;
+    width: 100%;
+  }
+  .bill-to p,
+  .invoice-details p {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* Items table - make scrollable and compact */
+  .items-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  .items-table thead th,
+  .items-table tbody td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+  .items-table tbody td .editable {
+    min-width: 0;
+    font-size: 12px;
+    padding: 3px 4px;
+  }
+
+  /* Totals - full width */
+  .totals-section {
+    justify-content: stretch;
+  }
+  .totals-table {
+    width: 100%;
+  }
+  .totals-table .row.total-row .label,
+  .totals-table .row.total-row .value {
+    font-size: 16px;
+  }
+
+  /* Amount in words */
+  .amount-in-words {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  /* Payment info */
+  .payment-info {
+    padding: 12px 14px;
+  }
+  .payment-info p {
+    font-size: 12px;
+  }
+
+  /* Footer */
+  .invoice-footer .thank-you {
+    font-size: 13px;
+  }
+  .invoice-footer .contact {
+    font-size: 11px;
+  }
 }
