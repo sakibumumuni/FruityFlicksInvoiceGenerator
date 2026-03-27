@@ -286,41 +286,59 @@
 /* Mobile responsive */
 @media (max-width: 600px) {
   body {
-    padding: 10px;
+    padding: 8px;
   }
 
+  /* Controls */
   .controls {
     justify-content: center;
     gap: 6px;
   }
   .controls button {
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 12px;
   }
 
+  /* Invoice wrapper - reduce padding */
   .invoice-wrapper {
-    padding: 20px 15px 20px;
+    padding: 16px 12px 16px;
+    overflow: hidden;
+    word-wrap: break-word;
   }
 
-  /* Header - stack logo and title */
+  /* Header - stack logo and title, prevent overflow */
   .invoice-header {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
   .invoice-header .logo img {
-    width: 140px;
-    margin-bottom: 10px;
+    width: 120px;
+    margin-bottom: 8px;
   }
   .invoice-header .invoice-title {
     text-align: center;
+    width: 100%;
   }
   .invoice-header .invoice-title h1 {
-    font-size: 26px;
+    font-size: 24px;
+  }
+  .invoice-header .invoice-title .invoice-number-display {
+    font-size: 13px;
+    word-break: break-word;
+  }
+  .invoice-header .invoice-title .invoice-number-display p {
+    font-size: 11px;
   }
 
   .header-divider {
     width: 100%;
+  }
+
+  /* Company info */
+  .company-info p {
+    font-size: 12px;
+    word-break: break-word;
   }
 
   /* Bill To / Invoice Details - stack vertically */
@@ -330,13 +348,14 @@
     margin-bottom: 20px;
   }
 
-  /* Editable inputs - full width */
+  /* Editable inputs - full width, no min-width */
   .editable {
-    min-width: 0;
+    min-width: 0 !important;
     width: 100%;
+    box-sizing: border-box;
   }
   .editable-inline {
-    min-width: 0;
+    min-width: 0 !important;
     width: 100%;
   }
   .bill-to p,
@@ -346,22 +365,71 @@
     gap: 2px;
   }
 
-  /* Items table - make scrollable and compact */
+  /* Items table - convert to stacked cards */
   .items-table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
+    border: none;
   }
-  .items-table thead th,
+  .items-table thead {
+    display: none;
+  }
+  .items-table tbody {
+    display: block;
+  }
+  .items-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+  }
   .items-table tbody td {
-    padding: 8px 6px;
-    font-size: 12px;
+    display: block;
+    border: none;
+    padding: 2px 0;
+    font-size: 13px;
+    text-align: left !important;
+  }
+  /* Description - full width */
+  .items-table tbody td:nth-child(1) {
+    width: 100%;
+  }
+  /* Qty, Price, Amount - fit in one row */
+  .items-table tbody td:nth-child(2),
+  .items-table tbody td:nth-child(3),
+  .items-table tbody td:nth-child(4) {
+    flex: 1;
+    text-align: center !important;
+  }
+  /* Remove button */
+  .items-table tbody td:nth-child(5) {
+    flex: 0 0 auto;
+  }
+  /* Add labels before each field */
+  .items-table tbody td:nth-child(2)::before {
+    content: "Qty: ";
+    font-weight: 600;
+    font-size: 11px;
+    color: #555;
+  }
+  .items-table tbody td:nth-child(3)::before {
+    content: "Price: ";
+    font-weight: 600;
+    font-size: 11px;
+    color: #555;
+  }
+  .items-table tbody td:nth-child(4)::before {
+    content: "Amt: ";
+    font-weight: 600;
+    font-size: 11px;
+    color: #555;
   }
   .items-table tbody td .editable {
-    min-width: 0;
-    font-size: 12px;
-    padding: 3px 4px;
+    min-width: 0 !important;
+    width: 100%;
+    font-size: 13px;
+    padding: 4px 6px;
+    box-sizing: border-box;
   }
 
   /* Totals - full width */
@@ -376,18 +444,20 @@
     font-size: 16px;
   }
 
-  /* Amount in words */
+  /* Amount in words - wrap text */
   .amount-in-words {
     font-size: 12px;
     padding: 8px 10px;
+    word-break: break-word;
   }
 
   /* Payment info */
   .payment-info {
-    padding: 12px 14px;
+    padding: 12px 10px;
   }
   .payment-info p {
     font-size: 12px;
+    word-break: break-word;
   }
 
   /* Footer */
@@ -396,5 +466,6 @@
   }
   .invoice-footer .contact {
     font-size: 11px;
+    word-break: break-word;
   }
 }
