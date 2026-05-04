@@ -1,0 +1,4 @@
+  File "/home/sakibu/Desktop/FruityFlicksInvoiceGenerator/app.py", line 1
+    Type help() for interactive help, or help(object) for help about object.
+         ^^^^
+SyntaxError: invalid syntax
