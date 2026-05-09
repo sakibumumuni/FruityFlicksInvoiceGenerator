@@ -9,10 +9,11 @@
 </head>
 <body>
 
+<form action="/invoice" method="POST">
 <div class="controls">
-  <button class="btn-add" onclick="addRow()">+ Add Item</button>
-  <button class="btn-download" onclick="saveAndDownload()">⬇ Save & Download</button>
-  <button class="btn-clear" onclick="clearForm()">✕ Clear All</button>
+  <button type="button" class="btn-add" onclick="addRow()">+ Add Item</button>
+  <button type="submit" class="btn-download">⬇ Save & Download</button>
+  <button type="button" class="btn-clear" onclick="clearForm()">✕ Clear All</button>
 </div>
 
 <div class="invoice-wrapper" id="invoice">
@@ -20,12 +21,12 @@
   <!-- Header -->
   <div class="invoice-header">
     <div class="logo">
-      <img id="logoImg" src="" alt="Fruity Flicks Logo">
+      <img id="logoImg" src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Fruity Flicks Logo">
     </div>
     <div class="invoice-title">
       <h1>INVOICE</h1>
       <div class="invoice-number-display"><p id="invoicenumber">INVOICE NUMBER</p>
-        <span contenteditable="true" class="editable editable-inline" id="invoiceNumber">FF-001</span>
+        <input type="text" name="invoice_number" id="invoiceNumber" class="editable editable-inline" value="FF-001" required>
       </div>
     </div>
   </div>
@@ -46,7 +47,6 @@
 
   <hr class="section-divider">
   <!-- Bill To + Invoice Details -->
-  <form action="/invoice" method="POST">  
 
   <div class="bill-details-row">
     <div class="bill-to">
@@ -100,10 +100,6 @@
   <div class="amount-in-words">
   <span>Amount in Words:</span> <span id="amount_words">Zero Ghana Cedis Only</span>
   </div>
-  <!-- Hidden inputs to submit calculated values -->
-  <input type="hidden" name="sub_total" id="sub_total_input">
-  <input type="hidden" name="total_amount" id="total_amount_input">
-  <input type="hidden" name="amount_words" id="amount_words_input">
   <!-- Payment Info -->
   <div class="payment-info">
     <h3>Payment Information</h3>
@@ -113,7 +109,6 @@
     <p><span class="label">Mobile Money:</span> <span contenteditable="true" aria-readonly="true">0243869554</span></p>
     <p><span class="label">Merchant ID:</span> <span contenteditable="true" aria-readonly="true">114356</span></p>
   </div>
-  </form>
 
   <!-- Footer -->
   <div class="invoice-footer">
@@ -122,8 +117,7 @@
   </div>
 
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</form>
 <script src="{{url_for('static', filename='main.js')}}"></script>
 
 </body>

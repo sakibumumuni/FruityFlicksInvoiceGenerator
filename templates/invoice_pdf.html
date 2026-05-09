@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fruity Flicks Invoice {{ invoice_number }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    font-size: 12px;
+  }
+
+  .invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .invoice-header .logo img {
+    width: 200px;
+    height: auto;
+  }
+  .invoice-header .invoice-title { text-align: right; }
+  .invoice-header .invoice-title h1 {
+    font-size: 32px;
+    color: #2e7d32;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .invoice-number-display {
+    font-size: 14px;
+    color: #2e7d32;
+  }
+  .invoice-number-display .num {
+    font-weight: 600;
+  }
+
+  .header-divider {
+    border: none;
+    border-top: 3px solid #2e7d32;
+    margin: 16px 0 12px;
+    width: 220px;
+  }
+
+  .company-info .tagline {
+    color: #2e7d32;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .company-info p {
+    font-size: 12px;
+    color: #444;
+    margin-bottom: 2px;
+  }
+  .company-info .icon { margin-right: 6px; }
+
+  .section-divider {
+    border: none;
+    border-top: 3px solid #2e7d32;
+    margin: 16px 0;
+  }
+
+  .bill-details-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 40px;
+  }
+  .bill-to, .invoice-details { flex: 1; }
+  .bill-to h3, .invoice-details h3 {
+    color: #2e7d32;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .bill-to p, .invoice-details p {
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #444;
+  }
+  .label { font-weight: 600; color: #333; margin-right: 4px; }
+
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+  .items-table thead th {
+    background: #f5f5f5;
+    border-bottom: 2px solid #ddd;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+  }
+  .items-table thead th.center,
+  .items-table tbody td.center { text-align: center; }
+  .items-table thead th.right,
+  .items-table tbody td.right { text-align: right; }
+  .items-table tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+    vertical-align: middle;
+  }
+
+  .totals-section {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+  }
+  .totals-table { width: 280px; }
+  .totals-table .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 13px;
+    color: #444;
+  }
+  .totals-table .row.total-row {
+    border-top: 2px solid #2e7d32;
+    margin-top: 4px;
+    padding-top: 8px;
+  }
+  .totals-table .row.total-row .label,
+  .totals-table .row.total-row .value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2e7d32;
+  }
+
+  .amount-in-words {
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: #f9f9f9;
+    border-left: 4px solid #2e7d32;
+    font-size: 12px;
+    color: #444;
+  }
+  .amount-in-words .label-words {
+    font-weight: 600;
+    color: #2e7d32;
+    margin-right: 4px;
+  }
+
+  .payment-info {
+    border-left: 4px solid #f9a825;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+  }
+  .payment-info h3 {
+    color: #2e7d32;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .payment-info p {
+    font-size: 12px;
+    margin-bottom: 3px;
+    color: #444;
+  }
+
+  .invoice-footer {
+    border-top: 1px solid #ddd;
+    padding-top: 14px;
+    text-align: center;
+  }
+  .invoice-footer .thank-you {
+    color: #f9a825;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+  .invoice-footer .contact {
+    font-size: 11px;
+    color: #888;
+  }
+</style>
+</head>
+<body>
+
+<div class="invoice-header">
+  <div class="logo">
+    <img src="{{ logo_url }}" alt="Fruity Flicks Logo">
+  </div>
+  <div class="invoice-title">
+    <h1>INVOICE</h1>
+    <div class="invoice-number-display">
+      INVOICE NUMBER <span class="num">{{ invoice_number }}</span>
+    </div>
+  </div>
+</div>
+
+<hr class="header-divider">
+
+<div class="company-info">
+  <p class="tagline">Eat Smart, Live Well</p>
+  <p><span class="icon">&#128222;</span>0256099995</p>
+  <p><span class="icon">&#9993;</span>fruityflicks@gmail.com</p>
+  <p><span class="icon">&#128241;</span>0256099996</p>
+  <p><span class="icon">&#128205;</span>10 Moole Street, Dansoman Exhibition Roundabout</p>
+</div>
+
+<hr class="section-divider">
+
+<div class="bill-details-row">
+  <div class="bill-to">
+    <h3>Bill To</h3>
+    <p><span class="label">Client Name:</span>{{ client_name }}</p>
+    <p><span class="label">Client Address:</span>{{ client_address }}</p>
+    <p><span class="label">Contact Person:</span>{{ contact_person }}</p>
+  </div>
+  <div class="invoice-details">
+    <h3>Invoice Details</h3>
+    <p><span class="label">Delivery Date:</span>{{ delivery_date }}</p>
+  </div>
+</div>
+
+<table class="items-table">
+  <thead>
+    <tr>
+      <th style="width:45%">Description</th>
+      <th class="center" style="width:15%">Quantity</th>
+      <th class="right" style="width:20%">Unit Price (GHS)</th>
+      <th class="right" style="width:20%">Amount (GHS)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{ item.description }}</td>
+      <td class="center">{{ item.quantity }}</td>
+      <td class="right">{{ '{:,.2f}'.format(item.unit_price) }}</td>
+      <td class="right">{{ '{:,.2f}'.format(item.amount) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="totals-section">
+  <div class="totals-table">
+    <div class="row">
+      <span class="label">Subtotal:</span>
+      <span class="value">GHS {{ '{:,.2f}'.format(sub_total) }}</span>
+    </div>
+    <div class="row total-row">
+      <span class="label">TOTAL:</span>
+      <span class="value">GHS {{ '{:,.2f}'.format(total_amount) }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="amount-in-words">
+  <span class="label-words">Amount in Words:</span>{{ amount_words }}
+</div>
+
+<div class="payment-info">
+  <h3>Payment Information</h3>
+  <p><span class="label">Bank:</span> Stanbic Bank</p>
+  <p><span class="label">Account Name:</span> Fruity Flicks/Ivan Obeng Amoako</p>
+  <p><span class="label">Account Number:</span> 9040014197480</p>
+  <p><span class="label">Mobile Money:</span> 0243869554</p>
+  <p><span class="label">Merchant ID:</span> 114356</p>
+</div>
+
+<div class="invoice-footer">
+  <p class="thank-you">Thank you for your business!</p>
+  <p class="contact">For any queries regarding this invoice, please contact us at fruityflicks@gmail.com</p>
+</div>
+
+</body>
+</html>
