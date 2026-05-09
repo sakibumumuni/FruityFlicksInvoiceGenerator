@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timezone
 
-from flask import Flask, render_template, request, Response, abort
+from flask import Flask, render_template, request, Response
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from weasyprint import HTML
