@@ -1,15 +1,17 @@
-# Fruity Flicks Invoice Generator
+# Fruity Flicks Invoice & Receipt Generator
 
-A web-based invoice generator for **Fruity Flicks**, a fruit distribution company based in Dansoman, Accra. Built with Flask and MongoDB; PDFs are rendered server-side with WeasyPrint.
+A web-based invoice and receipt generator for **Fruity Flicks**, a fruit distribution company based in Dansoman, Accra. Built with Flask and MongoDB; PDFs are rendered server-side with WeasyPrint.
 
 ## Features
 
 - **Invoice creation** — Fill in client details and add multiple line items with descriptions, quantities, and unit prices (GHS).
-- **Auto-calculations** — Row amounts, subtotal, total, and amount in words update live in the browser.
-- **Save & Download** — Submitting the form persists the invoice to MongoDB and returns a freshly rendered PDF in the same response.
+- **Receipt creation** — Issue paid-receipts with payment date, payment method (Cash / Bank Transfer / Mobile Money), reference / transaction ID, and amount paid. Outstanding balance is computed automatically; a green **PAID** stamp is added when the balance hits zero.
+- **Auto-calculations** — Row amounts, subtotal, total, balance, and amount in words update live in the browser.
+- **Save & Download** — Submitting the form persists the document to MongoDB and returns a freshly rendered PDF in the same response.
 - **Dynamic line items** — Add or remove item rows as needed.
-- **A4 PDF export** — Server-rendered PDF with company branding, fixed to a single A4 page.
-- **Clear form** — Reset all fields to start a new invoice.
+- **Single-page A4 PDF** — Server-rendered PDF that auto-fits everything onto a single A4 page no matter how many line items the document has.
+- **Cross-form navigation** — One-click toggle between the invoice and receipt forms.
+- **Clear form** — Reset all fields to start a new document.
 
 ## Tech Stack
 
@@ -17,24 +19,37 @@ A web-based invoice generator for **Fruity Flicks**, a fruit distribution compan
 - **Database:** MongoDB Atlas (via PyMongo)
 - **Frontend:** HTML, CSS, vanilla JavaScript (calculations and UX only)
 - **PDF generation:** WeasyPrint (server-side, HTML/CSS to PDF)
+- **Production server:** Gunicorn
 
 ## Project Structure
 
 ```
 .
-├── app.py                       # Flask app, routes, PDF generation
+├── app.py                       # Flask app, routes, shared helpers, PDF generation
 ├── requirements.txt
 ├── .env                         # MongoDB URI (gitignored)
 ├── .gitignore
 ├── README.md
 ├── templates/
 │   ├── index.html               # Editable invoice form
-│   └── invoice_pdf.html         # Server-rendered template used for the PDF
+│   ├── invoice_pdf.html         # Server-rendered template used for the invoice PDF
+│   ├── receipt.html             # Editable receipt form
+│   └── receipt_pdf.html         # Server-rendered template used for the receipt PDF
 └── static/
     ├── css/style.css            # Form styling
     ├── img/logo.jpg             # Company logo (used by both views)
-    └── main.js                  # Row math, add/remove, clear form
+    └── main.js                  # Row math, add/remove, clear form (shared)
 ```
+
+## Routes
+
+| Method | Path        | Purpose                                                    |
+|--------|-------------|------------------------------------------------------------|
+| GET    | `/`         | Renders the invoice form (alias for `/invoice`)            |
+| GET    | `/invoice`  | Renders the invoice form                                   |
+| POST   | `/invoice`  | Saves invoice to MongoDB and returns the PDF as a download |
+| GET    | `/receipt`  | Renders the receipt form                                   |
+| POST   | `/receipt`  | Saves receipt to MongoDB and returns the PDF as a download |
 
 ## Setup
 
@@ -77,21 +92,33 @@ A web-based invoice generator for **Fruity Flicks**, a fruit distribution compan
    python app.py
    ```
 
-6. Open `http://localhost:5000/invoice` in your browser.
+6. Open `http://localhost:5000/invoice` (or `/receipt`) in your browser.
 
 ## Usage
 
-1. Fill in **invoice number**, **client name**, **address**, **contact person**, and **delivery date**.
+### Issuing an invoice
+
+1. Open `/invoice`. Fill in **invoice number**, **client name**, **address**, **contact person**, and **delivery date**.
 2. Add line items with the **+ Add Item** button — enter description, quantity, and unit price.
 3. Totals and amount-in-words update as you type.
 4. Click **Save & Download** — the form POSTs to `/invoice`; the server saves the record to MongoDB and streams back a PDF download (`FruityFlicks_Invoice_<number>.pdf`).
 5. Use **Clear All** to reset the form.
 
-If the database is unreachable, PDF generation still succeeds — the save failure is logged but the user still gets their invoice.
+### Issuing a receipt
+
+1. From the invoice form, click **→ Switch to Receipt** (or open `/receipt` directly).
+2. Fill in **receipt number**, the same client fields, and the **payment details**: payment date, payment method, reference / transaction ID.
+3. Add line items the same way.
+4. Enter the **Amount Paid** — the balance and amount-in-words recompute live.
+5. Click **Save & Download** — the server saves the receipt to MongoDB and returns the PDF (`FruityFlicks_Receipt_<number>.pdf`). When the balance is zero, the PDF includes a green **PAID** stamp.
+
+If the database is unreachable, PDF generation still succeeds — the save failure is logged but the user still gets their document.
 
 ## MongoDB Document Structure
 
-Each invoice is stored in the `invoices.invoices` collection:
+Invoices live in the `invoices.invoices` collection, receipts in `invoices.receipts`.
+
+### Invoice
 
 ```json
 {
@@ -101,12 +128,7 @@ Each invoice is stored in the `invoices.invoices` collection:
   "contact_person": "John Doe",
   "delivery_date": "2026-03-27",
   "items": [
-    {
-      "description": "Fruit Packs",
-      "quantity": 10,
-      "unit_price": 50.00,
-      "amount": 500.00
-    }
+    { "description": "Fruit Packs", "quantity": 10, "unit_price": 50.00, "amount": 500.00 }
   ],
   "sub_total": 500.00,
   "total_amount": 500.00,
@@ -114,6 +136,42 @@ Each invoice is stored in the `invoices.invoices` collection:
   "created_at": "2026-03-27T10:15:00Z"
 }
 ```
+
+### Receipt
+
+```json
+{
+  "receipt_number": "FFR-001",
+  "client_name": "Acme Ltd",
+  "client_address": "123 Main St, Accra",
+  "contact_person": "John Doe",
+  "payment_date": "2026-05-10",
+  "payment_method": "Bank Transfer",
+  "reference": "TXN-987654",
+  "items": [
+    { "description": "Mango Pack", "quantity": 5, "unit_price": 20.00, "amount": 100.00 }
+  ],
+  "sub_total": 100.00,
+  "total_amount": 100.00,
+  "amount_paid": 100.00,
+  "balance": 0.00,
+  "amount_words": "One Hundred Ghana Cedis Only",
+  "created_at": "2026-05-10T10:15:00Z"
+}
+```
+
+## Deployment (Render)
+
+The app runs on Render's standard Python runtime out of the box.
+
+| Setting        | Value                                |
+|----------------|--------------------------------------|
+| Build command  | `pip install -r requirements.txt`    |
+| Start command  | `gunicorn app:app`                   |
+| Environment var| `mongodb_uri` = your Atlas URI       |
+| Python version | set `PYTHON_VERSION` (e.g. `3.11.9`) |
+
+Render injects `PORT` automatically — `app.py` already reads it. In MongoDB Atlas, allow Render's egress IPs (or `0.0.0.0/0`) under **Network Access**.
 
 ## Company Details (Pre-filled)
 
