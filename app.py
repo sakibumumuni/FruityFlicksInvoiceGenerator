@@ -6,13 +6,15 @@ from bson.errors import InvalidId
 from flask import Flask, abort, redirect, render_template, request, Response, send_from_directory, url_for
 from pymongo import MongoClient
 from dotenv import load_dotenv
+import pymongo
 from weasyprint import HTML
 
 load_dotenv()
 
 app = Flask(__name__)
 
-client = MongoClient(os.getenv("mongodb_uri"), serverSelectionTimeoutMS=5000)
+#client = MongoClient(os.getenv("mongodb_uri"), serverSelectionTimeoutMS=5000)
+client = pymongo.MongoClient(os.getenv("mongodb_uri"))
 # Database name has a space, so bracket lookup is required (client.fruity flicks would be a syntax error).
 db = client.fruityflicks
 invoices = db.invoices
