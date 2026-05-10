@@ -168,7 +168,7 @@ Service workers require HTTPS — the deployed Render URL is HTTPS by default; l
 
 ## MongoDB Document Structure
 
-Invoices live in the `invoices.invoices` collection, receipts in `invoices.receipts`.
+Invoices live in the `fruity flicks.invoices` collection, receipts in `fruity flicks.receipts`. The receipts collection is auto-created on the first save.
 
 ### Invoice
 
