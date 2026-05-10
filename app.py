@@ -12,7 +12,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-client = MongoClient(os.getenv("mongodb_uri"))
+client = MongoClient(os.getenv("mongodb_uri"), serverSelectionTimeoutMS=5000)
 db = client.invoices
 
 
@@ -181,21 +181,33 @@ def _pdf_response(template_name, ctx, filename):
     )
 
 
-@app.route('/', methods=['GET'])
-def index():
-    return redirect(url_for('dashboard'))
-
-
 @app.route('/service-worker.js')
 def service_worker():
     return send_from_directory(app.static_folder, 'service-worker.js', mimetype='application/javascript')
 
 
+@app.route('/', methods=['GET'])
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    invoices = list(db.invoices.find().sort('created_at', -1))
-    receipts = list(db.receipts.find().sort('created_at', -1))
-    return render_template('dashboard.html', invoices=invoices, receipts=receipts)
+    invoices, receipts, error = [], [], None
+    try:
+        invoices = list(db.invoices.find().sort('created_at', -1))
+        receipts = list(db.receipts.find().sort('created_at', -1))
+    except Exception as e:
+        app.logger.warning('Dashboard query failed: %s', e)
+        error = 'Could not load records from the database. Check the MongoDB connection.'
+
+    invoices_total = sum((inv.get('total_amount') or 0) for inv in invoices)
+    receipts_total = sum((rec.get('amount_paid') or 0) for rec in receipts)
+
+    return render_template(
+        'dashboard.html',
+        invoices=invoices,
+        receipts=receipts,
+        invoices_total=invoices_total,
+        receipts_total=receipts_total,
+        error=error,
+    )
 
 
 @app.route('/invoice', methods=['GET', 'POST'])

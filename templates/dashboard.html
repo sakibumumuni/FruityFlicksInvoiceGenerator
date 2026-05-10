@@ -31,16 +31,20 @@
     </div>
   </header>
 
+  {% if error %}
+  <div class="error-banner">{{ error }}</div>
+  {% endif %}
+
   <div class="summary-cards">
     <div class="card">
       <span class="card-label">Invoices Issued</span>
       <span class="card-value">{{ invoices|length }}</span>
-      <span class="card-sub">GHS {{ '{:,.2f}'.format(invoices|sum(attribute='total_amount', start=0)) }} total</span>
+      <span class="card-sub">GHS {{ '{:,.2f}'.format(invoices_total or 0) }} total</span>
     </div>
     <div class="card">
       <span class="card-label">Receipts Issued</span>
       <span class="card-value">{{ receipts|length }}</span>
-      <span class="card-sub">GHS {{ '{:,.2f}'.format(receipts|sum(attribute='amount_paid', start=0)) }} collected</span>
+      <span class="card-sub">GHS {{ '{:,.2f}'.format(receipts_total or 0) }} collected</span>
     </div>
   </div>
 

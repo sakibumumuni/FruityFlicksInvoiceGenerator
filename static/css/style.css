@@ -456,3 +456,13 @@
     text-align: center;
   }
   .empty-state a { color: #2e7d32; font-weight: 600; }
+
+  .error-banner {
+    padding: 12px 16px;
+    background: #ffebee;
+    border-left: 4px solid #c62828;
+    border-radius: 4px;
+    color: #b71c1c;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
