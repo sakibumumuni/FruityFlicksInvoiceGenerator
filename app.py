@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from flask import Flask, abort, redirect, render_template, request, Response, url_for
+from flask import Flask, abort, redirect, render_template, request, Response, send_from_directory, url_for
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from weasyprint import HTML
@@ -184,6 +184,11 @@ def _pdf_response(template_name, ctx, filename):
 @app.route('/', methods=['GET'])
 def index():
     return redirect(url_for('dashboard'))
+
+
+@app.route('/service-worker.js')
+def service_worker():
+    return send_from_directory(app.static_folder, 'service-worker.js', mimetype='application/javascript')
 
 
 @app.route('/dashboard', methods=['GET'])
