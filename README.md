@@ -5,11 +5,11 @@ A web-based invoice and receipt **management system** for **Fruity Flicks**, a f
 ## Features
 
 - **Dashboard** — Landing page lists every issued invoice and receipt with summary cards (counts, GHS totals), client-side search, and per-row actions.
-- **Per-row actions** — From the dashboard, each saved doc supports: **View** (read-only HTML render), **PDF** (re-download the original PDF), **Duplicate** (open the create form pre-filled), **Delete** (confirm-prompted).
+- **Save-then-download flow** — Submitting an invoice or receipt form persists the record to MongoDB and redirects to the dashboard, where you download the PDF (now or any time later). A success banner with quick **Download PDF** / **View** links appears for the just-saved doc; if the save fails, a clear error banner appears on the form so you don't unknowingly lose data.
+- **Per-row actions** — From the dashboard, each saved doc supports: **View** (read-only HTML render), **PDF** (download the PDF), **Duplicate** (open the create form pre-filled), **Delete** (confirm-prompted).
 - **Invoice creation** — Fill in client details and add multiple line items with descriptions, quantities, and unit prices (GHS).
 - **Receipt creation** — Issue paid-receipts with payment date, payment method (Cash / Bank Transfer / Mobile Money), reference / transaction ID, and amount paid. Outstanding balance is computed automatically; a green **PAID** stamp is added when the balance hits zero.
 - **Auto-calculations** — Row amounts, subtotal, total, balance, and amount in words update live in the browser.
-- **Save & Download** — Submitting the form persists the document to MongoDB and returns a freshly rendered PDF in the same response.
 - **Single-page A4 PDF** — Server-rendered PDF that auto-fits everything onto a single A4 page no matter how many line items the document has.
 - **Installable PWA** — A web app manifest and service worker make the dashboard installable on iOS/Android home screens and as a desktop app, with the company logo as the launcher icon.
 - **Resilient dashboard** — Friendly error banner if MongoDB is unreachable; missing/None fields on legacy records won't break the page.
@@ -60,10 +60,10 @@ A web-based invoice and receipt **management system** for **Fruity Flicks**, a f
 | GET    | `/dashboard`                    | Dashboard (same view as `/`)                           |
 | GET    | `/invoice`                      | Renders the invoice form                               |
 | GET    | `/invoice?duplicate=<id>`       | Invoice form pre-filled from an existing record        |
-| POST   | `/invoice`                      | Saves invoice to MongoDB, returns PDF as download      |
+| POST   | `/invoice`                      | Saves invoice to MongoDB, redirects to `/dashboard?saved=invoice&id=...` |
 | GET    | `/receipt`                      | Renders the receipt form                               |
 | GET    | `/receipt?duplicate=<id>`       | Receipt form pre-filled from an existing record        |
-| POST   | `/receipt`                      | Saves receipt to MongoDB, returns PDF as download      |
+| POST   | `/receipt`                      | Saves receipt to MongoDB, redirects to `/dashboard?saved=receipt&id=...` |
 
 ### Doc-specific actions
 
@@ -143,7 +143,8 @@ Open `/` (or `/dashboard`). Two summary cards show the count and total GHS for i
 2. Fill in **invoice number**, **client name**, **address**, **contact person**, and **delivery date**.
 3. Add line items with the **+ Add Item** button — enter description, quantity, and unit price.
 4. Totals and amount-in-words update as you type.
-5. Click **Save & Download** — the form POSTs to `/invoice`; the server saves the record to MongoDB and streams back a PDF download (`FruityFlicks_Invoice_<number>.pdf`).
+5. Click **💾 Save Invoice** — the form POSTs to `/invoice`; the server saves the record and redirects you back to the dashboard.
+6. On the dashboard, a green success banner shows **Download PDF** and **View** links for the just-saved invoice. The new invoice also appears at the top of the **Invoices** table and can be downloaded again any time. If the save fails (e.g. database unreachable), the form re-renders with an error banner and your data preserved.
 
 ### Issuing a receipt
 
@@ -151,9 +152,9 @@ Open `/` (or `/dashboard`). Two summary cards show the count and total GHS for i
 2. Fill in **receipt number**, the client fields, and the **payment details**: payment date, payment method, reference / transaction ID.
 3. Add line items the same way.
 4. Enter the **Amount Paid** — the balance and amount-in-words recompute live.
-5. Click **Save & Download** — the server saves the receipt to MongoDB and returns the PDF (`FruityFlicks_Receipt_<number>.pdf`). When the balance is zero, the PDF includes a green **PAID** stamp.
+5. Click **💾 Save Receipt** — same flow: persisted to MongoDB, redirected to the dashboard, success banner with **Download PDF** / **View** links. When the balance is zero, the downloaded PDF includes a green **PAID** stamp.
 
-If the database is unreachable, PDF generation still succeeds — the save failure is logged but the user still gets their document. The dashboard will show an error banner if it cannot read records.
+The dashboard will show its own error banner if it cannot read records from the database.
 
 ### Installing as an app (PWA)
 

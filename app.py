@@ -224,26 +224,19 @@ def invoice_details():
     ctx = _build_invoice_context(request.form)
 
     try:
-        db.invoices.insert_one({
+        result = db.invoices.insert_one({
             **ctx,
             'created_at': datetime.now(timezone.utc),
         })
     except Exception as e:
         app.logger.warning('Failed to save invoice to MongoDB: %s', e)
+        return render_template(
+            'index.html',
+            prefill=ctx,
+            save_error='Could not save the invoice. Check the database connection and try again.',
+        )
 
-    html = render_template(
-        'invoice_pdf.html',
-        logo_url=_logo_file_url(),
-        **ctx,
-    )
-    pdf_bytes = _render_single_page_pdf(html, request.url_root)
-
-    filename = f"FruityFlicks_Invoice_{ctx['invoice_number']}.pdf"
-    return Response(
-        pdf_bytes,
-        mimetype='application/pdf',
-        headers={'Content-Disposition': f'attachment; filename="{filename}"'},
-    )
+    return redirect(url_for('dashboard', saved='invoice', id=str(result.inserted_id)))
 
 
 @app.route('/invoice/<doc_id>', methods=['GET'])
@@ -290,26 +283,19 @@ def receipt_details():
     ctx = _build_receipt_context(request.form)
 
     try:
-        db.receipts.insert_one({
+        result = db.receipts.insert_one({
             **ctx,
             'created_at': datetime.now(timezone.utc),
         })
     except Exception as e:
         app.logger.warning('Failed to save receipt to MongoDB: %s', e)
+        return render_template(
+            'receipt.html',
+            prefill=ctx,
+            save_error='Could not save the receipt. Check the database connection and try again.',
+        )
 
-    html = render_template(
-        'receipt_pdf.html',
-        logo_url=_logo_file_url(),
-        **ctx,
-    )
-    pdf_bytes = _render_single_page_pdf(html, request.url_root)
-
-    filename = f"FruityFlicks_Receipt_{ctx['receipt_number']}.pdf"
-    return Response(
-        pdf_bytes,
-        mimetype='application/pdf',
-        headers={'Content-Disposition': f'attachment; filename="{filename}"'},
-    )
+    return redirect(url_for('dashboard', saved='receipt', id=str(result.inserted_id)))
 
 
 @app.route('/receipt/<doc_id>', methods=['GET'])

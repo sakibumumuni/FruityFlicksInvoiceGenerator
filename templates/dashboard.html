@@ -38,6 +38,26 @@
   <div class="error-banner">{{ error }}</div>
   {% endif %}
 
+  {% set saved = request.args.get('saved') %}
+  {% set saved_id = request.args.get('id') %}
+  {% if saved == 'invoice' and saved_id %}
+    <div class="success-banner">
+      <span>✓ Invoice saved successfully.</span>
+      <span class="success-actions">
+        <a href="{{ url_for('invoice_pdf', doc_id=saved_id) }}" class="action-btn action-download">Download PDF</a>
+        <a href="{{ url_for('invoice_view', doc_id=saved_id) }}" class="action-btn action-view" target="_blank">View</a>
+      </span>
+    </div>
+  {% elif saved == 'receipt' and saved_id %}
+    <div class="success-banner">
+      <span>✓ Receipt saved successfully.</span>
+      <span class="success-actions">
+        <a href="{{ url_for('receipt_pdf', doc_id=saved_id) }}" class="action-btn action-download">Download PDF</a>
+        <a href="{{ url_for('receipt_view', doc_id=saved_id) }}" class="action-btn action-view" target="_blank">View</a>
+      </span>
+    </div>
+  {% endif %}
+
   <div class="summary-cards">
     <div class="card">
       <span class="card-label">Invoices Issued</span>

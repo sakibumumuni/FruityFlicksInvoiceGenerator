@@ -20,11 +20,12 @@
 
 {% set p = prefill or {} %}
 <form action="/invoice" method="POST">
+{% if save_error %}<div class="error-banner" style="max-width:800px;margin:0 auto 12px;">{{ save_error }}</div>{% endif %}
 <div class="controls">
   <a href="{{ url_for('dashboard') }}" class="btn-switch" style="background: #455a64;">← Dashboard</a>
   <a href="{{ url_for('receipt_details') }}" class="btn-switch">→ Switch to Receipt</a>
   <button type="button" class="btn-add" onclick="addRow()">+ Add Item</button>
-  <button type="submit" class="btn-download">⬇ Save & Download</button>
+  <button type="submit" class="btn-download">💾 Save Invoice</button>
   <button type="button" class="btn-clear" onclick="clearForm()">✕ Clear All</button>
 </div>
 
