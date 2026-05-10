@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<title>Fruity Flicks — Dashboard</title>
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+
+  <header class="dashboard-header">
+    <div>
+      <h1>Fruity Flicks</h1>
+      <p class="muted">Invoice & Receipt Management</p>
+    </div>
+    <div class="dashboard-actions">
+      <a href="{{ url_for('invoice_details') }}" class="btn-primary">+ New Invoice</a>
+      <a href="{{ url_for('receipt_details') }}" class="btn-primary btn-secondary">+ New Receipt</a>
+    </div>
+  </header>
+
+  <div class="summary-cards">
+    <div class="card">
+      <span class="card-label">Invoices Issued</span>
+      <span class="card-value">{{ invoices|length }}</span>
+      <span class="card-sub">GHS {{ '{:,.2f}'.format(invoices|sum(attribute='total_amount', start=0)) }} total</span>
+    </div>
+    <div class="card">
+      <span class="card-label">Receipts Issued</span>
+      <span class="card-value">{{ receipts|length }}</span>
+      <span class="card-sub">GHS {{ '{:,.2f}'.format(receipts|sum(attribute='amount_paid', start=0)) }} collected</span>
+    </div>
+  </div>
+
+  <input type="text" id="dashboardSearch" class="search-box" placeholder="Search by number, client name…" oninput="filterTables(this.value)">
+
+  <section class="docs-section">
+    <h2>Invoices</h2>
+    {% if invoices %}
+    <div class="table-wrap">
+      <table class="docs-table" id="invoicesTable">
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Client</th>
+            <th>Delivery Date</th>
+            <th>Issued</th>
+            <th class="right">Total (GHS)</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inv in invoices %}
+          <tr>
+            <td><strong>{{ inv.invoice_number }}</strong></td>
+            <td>{{ inv.client_name }}</td>
+            <td>{{ inv.delivery_date or '—' }}</td>
+            <td>{{ inv.created_at.strftime('%Y-%m-%d') if inv.created_at else '—' }}</td>
+            <td class="right">{{ '{:,.2f}'.format(inv.total_amount or 0) }}</td>
+            <td class="right actions-cell">
+              <a href="{{ url_for('invoice_view', doc_id=inv._id|string) }}" class="action-btn action-view" title="View" target="_blank">View</a>
+              <a href="{{ url_for('invoice_pdf', doc_id=inv._id|string) }}" class="action-btn action-download" title="Download PDF">PDF</a>
+              <a href="{{ url_for('invoice_details', duplicate=inv._id|string) }}" class="action-btn action-duplicate" title="Duplicate as new invoice">Duplicate</a>
+              <form method="POST" action="{{ url_for('invoice_delete', doc_id=inv._id|string) }}" class="inline-form" onsubmit="return confirm('Delete invoice {{ inv.invoice_number }}? This cannot be undone.');">
+                <button type="submit" class="action-btn action-delete" title="Delete">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty-state">No invoices issued yet. <a href="{{ url_for('invoice_details') }}">Create the first one →</a></p>
+    {% endif %}
+  </section>
+
+  <section class="docs-section">
+    <h2>Receipts</h2>
+    {% if receipts %}
+    <div class="table-wrap">
+      <table class="docs-table" id="receiptsTable">
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Client</th>
+            <th>Payment Date</th>
+            <th>Method</th>
+            <th class="right">Paid (GHS)</th>
+            <th class="right">Balance (GHS)</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rec in receipts %}
+          <tr>
+            <td><strong>{{ rec.receipt_number }}</strong></td>
+            <td>{{ rec.client_name }}</td>
+            <td>{{ rec.payment_date or '—' }}</td>
+            <td>{{ rec.payment_method or '—' }}</td>
+            <td class="right">{{ '{:,.2f}'.format(rec.amount_paid or 0) }}</td>
+            <td class="right">
+              {% if (rec.balance or 0) <= 0 %}
+                <span class="badge-paid">PAID</span>
+              {% else %}
+                {{ '{:,.2f}'.format(rec.balance) }}
+              {% endif %}
+            </td>
+            <td class="right actions-cell">
+              <a href="{{ url_for('receipt_view', doc_id=rec._id|string) }}" class="action-btn action-view" title="View" target="_blank">View</a>
+              <a href="{{ url_for('receipt_pdf', doc_id=rec._id|string) }}" class="action-btn action-download" title="Download PDF">PDF</a>
+              <a href="{{ url_for('receipt_details', duplicate=rec._id|string) }}" class="action-btn action-duplicate" title="Duplicate as new receipt">Duplicate</a>
+              <form method="POST" action="{{ url_for('receipt_delete', doc_id=rec._id|string) }}" class="inline-form" onsubmit="return confirm('Delete receipt {{ rec.receipt_number }}? This cannot be undone.');">
+                <button type="submit" class="action-btn action-delete" title="Delete">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty-state">No receipts issued yet. <a href="{{ url_for('receipt_details') }}">Create the first one →</a></p>
+    {% endif %}
+  </section>
+
+</div>
+
+<script>
+function filterTables(query) {
+  const q = query.toLowerCase().trim();
+  ['invoicesTable', 'receiptsTable'].forEach(id => {
+    const tbl = document.getElementById(id);
+    if (!tbl) return;
+    tbl.querySelectorAll('tbody tr').forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = (q === '' || text.includes(q)) ? '' : 'none';
+    });
+  });
+}
+</script>
+
+</body>
+</html>

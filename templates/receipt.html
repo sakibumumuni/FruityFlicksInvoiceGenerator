@@ -9,8 +9,10 @@
 </head>
 <body>
 
+{% set p = prefill or {} %}
 <form action="/receipt" method="POST">
 <div class="controls">
+  <a href="{{ url_for('dashboard') }}" class="btn-switch" style="background: #455a64;">← Dashboard</a>
   <a href="{{ url_for('invoice_details') }}" class="btn-switch">← Switch to Invoice</a>
   <button type="button" class="btn-add" onclick="addRow()">+ Add Item</button>
   <button type="submit" class="btn-download">⬇ Save & Download</button>
@@ -27,7 +29,7 @@
     <div class="invoice-title">
       <h1>RECEIPT</h1>
       <div class="invoice-number-display"><p id="invoicenumber">RECEIPT NUMBER</p>
-        <input type="text" name="receipt_number" id="invoiceNumber" class="editable editable-inline" value="FFR-001" required>
+        <input type="text" name="receipt_number" id="invoiceNumber" class="editable editable-inline" value="{{ p.get('receipt_number') or 'FFR-001' }}" required>
       </div>
     </div>
   </div>
@@ -52,21 +54,22 @@
   <div class="bill-details-row">
     <div class="bill-to">
       <h3>Paid By</h3>
-      <p><span class="label">Client Name:</span><input type="text" id="client_name" name="client_name" class="editable editable-inline" required></p>
-      <p><span class="label">Client Address:</span><input type="text" id="client_address" name="client_address" class="editable editable-inline" required></p>
-      <p><span class="label">Contact Person:</span><input type="text" id="contact_person" name="contact_person" class="editable editable-inline" required></p>
+      <p><span class="label">Client Name:</span><input type="text" id="client_name" name="client_name" class="editable editable-inline" value="{{ p.get('client_name', '') }}" required></p>
+      <p><span class="label">Client Address:</span><input type="text" id="client_address" name="client_address" class="editable editable-inline" value="{{ p.get('client_address', '') }}" required></p>
+      <p><span class="label">Contact Person:</span><input type="text" id="contact_person" name="contact_person" class="editable editable-inline" value="{{ p.get('contact_person', '') }}" required></p>
     </div>
     <div class="invoice-details">
       <h3>Payment Details</h3>
-      <p><span class="label">Payment Date:</span><input type="date" id="payment_date" class="editable editable-inline" name="payment_date" required></p>
+      <p><span class="label">Payment Date:</span><input type="date" id="payment_date" class="editable editable-inline" name="payment_date" value="{{ p.get('payment_date', '') }}" required></p>
       <p><span class="label">Payment Method:</span>
+        {% set pm = p.get('payment_method', '') %}
         <select id="payment_method" name="payment_method" class="editable editable-inline" required>
-          <option value="Cash">Cash</option>
-          <option value="Bank Transfer">Bank Transfer</option>
-          <option value="Mobile Money">Mobile Money</option>
+          <option value="Cash" {% if pm == 'Cash' %}selected{% endif %}>Cash</option>
+          <option value="Bank Transfer" {% if pm == 'Bank Transfer' %}selected{% endif %}>Bank Transfer</option>
+          <option value="Mobile Money" {% if pm == 'Mobile Money' %}selected{% endif %}>Mobile Money</option>
         </select>
       </p>
-      <p><span class="label">Reference / Tx ID:</span><input type="text" id="reference" name="reference" class="editable editable-inline"></p>
+      <p><span class="label">Reference / Tx ID:</span><input type="text" id="reference" name="reference" class="editable editable-inline" value="{{ p.get('reference', '') }}"></p>
     </div>
   </div>
 
@@ -82,13 +85,16 @@
       </tr>
     </thead>
     <tbody id="itemsBody">
+      {% set rows = p.get('items') or [{'description': 'Fruit Packs', 'quantity': 0, 'unit_price': 0.00, 'amount': 0.00}] %}
+      {% for it in rows %}
       <tr>
-        <td><input type="text" name="description[]" class="editable" value="Fruit Packs"></td>
-        <td><input type="number" name="quantity[]" class="editable" value="0" min="0" oninput="calcRow(this)"></td>
-        <td><input type="number" name="unit_price[]" class="editable" value="0.00" min="0" step="0.01" oninput="calcRow(this)"></td>
-        <td class="amount-cell">0.00</td>
+        <td><input type="text" name="description[]" class="editable" value="{{ it.description }}"></td>
+        <td><input type="number" name="quantity[]" class="editable" value="{{ it.quantity }}" min="0" oninput="calcRow(this)"></td>
+        <td><input type="number" name="unit_price[]" class="editable" value="{{ '{:.2f}'.format(it.unit_price) }}" min="0" step="0.01" oninput="calcRow(this)"></td>
+        <td class="amount-cell">{{ '{:,.2f}'.format(it.amount) }}</td>
         <td><button type="button" class="remove-row" onclick="removeRow(this)" title="Remove">×</button></td>
       </tr>
+      {% endfor %}
     </tbody>
   </table>
 
@@ -105,7 +111,7 @@
       </div>
       <div class="row">
         <span class="label">Amount Paid:</span>
-        <span class="value">GHS <input type="number" name="amount_paid" id="amount_paid" class="editable editable-inline" value="0.00" min="0" step="0.01" oninput="calcTotals()" style="width: 90px; text-align: right;"></span>
+        <span class="value">GHS <input type="number" name="amount_paid" id="amount_paid" class="editable editable-inline" value="{{ '{:.2f}'.format(p.get('amount_paid', 0)) }}" min="0" step="0.01" oninput="calcTotals()" style="width: 90px; text-align: right;"></span>
       </div>
       <div class="row">
         <span class="label">Balance:</span>

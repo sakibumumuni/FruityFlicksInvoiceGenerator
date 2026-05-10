@@ -10,6 +10,13 @@ function scaleInvoice() {
 window.addEventListener('resize', scaleInvoice);
 scaleInvoice();
 
+// On load, recompute totals from any prefilled rows so subtotal/total/balance reflect them.
+window.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('itemsBody') && document.getElementById('sub_total')) {
+    calcTotals();
+  }
+});
+
 // Calculate row amount
 function calcRow(input) {
   const row = input.closest('tr');

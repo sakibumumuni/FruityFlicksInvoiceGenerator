@@ -1,7 +1,9 @@
 import os
 from datetime import datetime, timezone
 
-from flask import Flask, render_template, request, Response
+from bson import ObjectId
+from bson.errors import InvalidId
+from flask import Flask, abort, redirect, render_template, request, Response, url_for
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from weasyprint import HTML
@@ -152,15 +154,55 @@ def _render_single_page_pdf(html, base_url):
     return doc.write_pdf(zoom=1 / scale)
 
 
+def _fetch_doc(collection, doc_id):
+    try:
+        return collection.find_one({'_id': ObjectId(doc_id)})
+    except (InvalidId, TypeError):
+        return None
+
+
+def _strip_meta(doc):
+    """Remove MongoDB-only fields so a stored doc can be passed to the form/PDF templates."""
+    if doc is None:
+        return None
+    clean = dict(doc)
+    clean.pop('_id', None)
+    clean.pop('created_at', None)
+    return clean
+
+
+def _pdf_response(template_name, ctx, filename):
+    html = render_template(template_name, logo_url=_logo_file_url(), **ctx)
+    pdf_bytes = _render_single_page_pdf(html, request.url_root)
+    return Response(
+        pdf_bytes,
+        mimetype='application/pdf',
+        headers={'Content-Disposition': f'attachment; filename="{filename}"'},
+    )
+
+
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return redirect(url_for('dashboard'))
+
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    invoices = list(db.invoices.find().sort('created_at', -1))
+    receipts = list(db.receipts.find().sort('created_at', -1))
+    return render_template('dashboard.html', invoices=invoices, receipts=receipts)
 
 
 @app.route('/invoice', methods=['GET', 'POST'])
 def invoice_details():
     if request.method == 'GET':
-        return render_template('index.html')
+        prefill = None
+        dup_id = request.args.get('duplicate')
+        if dup_id:
+            prefill = _strip_meta(_fetch_doc(db.invoices, dup_id))
+            if prefill:
+                prefill['invoice_number'] = ''
+        return render_template('index.html', prefill=prefill)
 
     ctx = _build_invoice_context(request.form)
 
@@ -187,10 +229,46 @@ def invoice_details():
     )
 
 
+@app.route('/invoice/<doc_id>', methods=['GET'])
+def invoice_view(doc_id):
+    inv = _fetch_doc(db.invoices, doc_id)
+    if not inv:
+        abort(404)
+    ctx = _strip_meta(inv)
+    return render_template('invoice_pdf.html', logo_url=url_for('static', filename='img/logo.jpg'), **ctx)
+
+
+@app.route('/invoice/<doc_id>/pdf', methods=['GET'])
+def invoice_pdf(doc_id):
+    inv = _fetch_doc(db.invoices, doc_id)
+    if not inv:
+        abort(404)
+    ctx = _strip_meta(inv)
+    filename = f"FruityFlicks_Invoice_{ctx['invoice_number']}.pdf"
+    return _pdf_response('invoice_pdf.html', ctx, filename)
+
+
+@app.route('/invoice/<doc_id>/delete', methods=['POST'])
+def invoice_delete(doc_id):
+    try:
+        db.invoices.delete_one({'_id': ObjectId(doc_id)})
+    except (InvalidId, TypeError):
+        abort(404)
+    except Exception as e:
+        app.logger.warning('Failed to delete invoice: %s', e)
+    return redirect(url_for('dashboard'))
+
+
 @app.route('/receipt', methods=['GET', 'POST'])
 def receipt_details():
     if request.method == 'GET':
-        return render_template('receipt.html')
+        prefill = None
+        dup_id = request.args.get('duplicate')
+        if dup_id:
+            prefill = _strip_meta(_fetch_doc(db.receipts, dup_id))
+            if prefill:
+                prefill['receipt_number'] = ''
+        return render_template('receipt.html', prefill=prefill)
 
     ctx = _build_receipt_context(request.form)
 
@@ -215,6 +293,36 @@ def receipt_details():
         mimetype='application/pdf',
         headers={'Content-Disposition': f'attachment; filename="{filename}"'},
     )
+
+
+@app.route('/receipt/<doc_id>', methods=['GET'])
+def receipt_view(doc_id):
+    rec = _fetch_doc(db.receipts, doc_id)
+    if not rec:
+        abort(404)
+    ctx = _strip_meta(rec)
+    return render_template('receipt_pdf.html', logo_url=url_for('static', filename='img/logo.jpg'), **ctx)
+
+
+@app.route('/receipt/<doc_id>/pdf', methods=['GET'])
+def receipt_pdf(doc_id):
+    rec = _fetch_doc(db.receipts, doc_id)
+    if not rec:
+        abort(404)
+    ctx = _strip_meta(rec)
+    filename = f"FruityFlicks_Receipt_{ctx['receipt_number']}.pdf"
+    return _pdf_response('receipt_pdf.html', ctx, filename)
+
+
+@app.route('/receipt/<doc_id>/delete', methods=['POST'])
+def receipt_delete(doc_id):
+    try:
+        db.receipts.delete_one({'_id': ObjectId(doc_id)})
+    except (InvalidId, TypeError):
+        abort(404)
+    except Exception as e:
+        app.logger.warning('Failed to delete receipt: %s', e)
+    return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':
