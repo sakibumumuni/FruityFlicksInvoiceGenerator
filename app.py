@@ -14,7 +14,8 @@ app = Flask(__name__)
 
 client = MongoClient(os.getenv("mongodb_uri"), serverSelectionTimeoutMS=5000)
 # Database name has a space, so bracket lookup is required (client.fruity flicks would be a syntax error).
-db = client["fruity flicks"]
+db = client.fruityflicks
+invoices = db.invoices
 
 
 _ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight',
