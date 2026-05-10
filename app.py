@@ -100,6 +100,31 @@ def _logo_file_url():
     return 'file://' + path
 
 
+def _render_single_page_pdf(html, base_url):
+    """Render to a single A4 page. If content overflows, render onto a larger
+    page where it fits, then scale the output back down to A4."""
+    import math
+    import re
+
+    doc = HTML(string=html, base_url=base_url).render()
+    if len(doc.pages) <= 1:
+        return doc.write_pdf()
+
+    scale = math.sqrt(len(doc.pages)) * 1.1
+    for _ in range(5):
+        new_page = (
+            f'@page {{ size: {210 * scale:.1f}mm {297 * scale:.1f}mm;'
+            f' margin: {18 * scale:.1f}mm; }}'
+        )
+        scaled_html = re.sub(r'@page\s*\{[^}]+\}', new_page, html, count=1)
+        doc = HTML(string=scaled_html, base_url=base_url).render()
+        if len(doc.pages) <= 1:
+            return doc.write_pdf(zoom=1 / scale)
+        scale *= math.sqrt(len(doc.pages)) * 1.1
+
+    return doc.write_pdf(zoom=1 / scale)
+
+
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
@@ -125,7 +150,7 @@ def invoice_details():
         logo_url=_logo_file_url(),
         **ctx,
     )
-    pdf_bytes = HTML(string=html, base_url=request.url_root).write_pdf()
+    pdf_bytes = _render_single_page_pdf(html, request.url_root)
 
     filename = f"FruityFlicks_Invoice_{ctx['invoice_number']}.pdf"
     return Response(
