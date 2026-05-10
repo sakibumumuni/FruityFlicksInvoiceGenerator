@@ -326,6 +326,16 @@
     flex-wrap: wrap;
     gap: 16px;
   }
+  .dashboard-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .dashboard-logo {
+    width: 80px;
+    height: auto;
+    object-fit: contain;
+  }
   .dashboard-header h1 {
     color: #2e7d32;
     font-size: 28px;

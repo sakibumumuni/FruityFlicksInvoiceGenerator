@@ -226,6 +226,10 @@ The app runs on Render's standard Python runtime out of the box.
 
 Render injects `PORT` automatically — `app.py` already reads it. In MongoDB Atlas, allow Render's egress IPs (or `0.0.0.0/0`) under **Network Access**. After redeploy, visit the Render URL once on each device you want to install the app on, then use the browser's *Install* / *Add to Home Screen* option.
 
+## License
+
+Released under the [MIT License](LICENSE) — © 2026 Sakibu Mumuni.
+
 ## Company Details (Pre-filled)
 
 - **Company:** Fruity Flicks

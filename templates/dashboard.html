@@ -21,9 +21,12 @@
 <div class="dashboard-wrapper">
 
   <header class="dashboard-header">
-    <div>
-      <h1>Fruity Flicks</h1>
-      <p class="muted">Invoice & Receipt Management</p>
+    <div class="dashboard-brand">
+      <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Fruity Flicks Logo" class="dashboard-logo">
+      <div>
+        <h1>Fruity Flicks</h1>
+        <p class="muted">Invoice & Receipt Management</p>
+      </div>
     </div>
     <div class="dashboard-actions">
       <a href="{{ url_for('invoice_details') }}" class="btn-primary">+ New Invoice</a>
