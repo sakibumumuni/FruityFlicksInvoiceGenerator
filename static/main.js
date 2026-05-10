@@ -29,10 +29,22 @@ function calcTotals() {
   });
 
   const total = subtotal;
+  const fmt = (n) => n.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  document.getElementById('sub_total').textContent = subtotal.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  document.getElementById('total_amount').textContent = total.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  document.getElementById('amount_words').textContent = numberToWords(total);
+  document.getElementById('sub_total').textContent = fmt(subtotal);
+  document.getElementById('total_amount').textContent = fmt(total);
+
+  // Receipt-only fields
+  const paidInput = document.getElementById('amount_paid');
+  const balanceEl = document.getElementById('balance');
+  if (paidInput && balanceEl) {
+    const paid = parseFloat(paidInput.value) || 0;
+    const balance = Math.max(total - paid, 0);
+    balanceEl.textContent = fmt(balance);
+    document.getElementById('amount_words').textContent = numberToWords(paid);
+  } else {
+    document.getElementById('amount_words').textContent = numberToWords(total);
+  }
 }
 
 // Add new row
@@ -62,11 +74,11 @@ function removeRow(btn) {
 // Clear form
 function clearForm() {
   if (!confirm('Clear all fields?')) return;
-  document.getElementById('invoiceNumber').value = 'FF-';
-  document.getElementById('client_name').value = '';
-  document.getElementById('client_address').value = '';
-  document.getElementById('contact_person').value = '';
-  document.getElementById('delivery_date').value = '';
+  ['client_name', 'client_address', 'contact_person',
+   'delivery_date', 'payment_date', 'reference', 'amount_paid'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
 
   const tbody = document.getElementById('itemsBody');
   tbody.innerHTML = `

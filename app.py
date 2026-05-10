@@ -59,7 +59,7 @@ def _parse_int(value, default=0):
         return default
 
 
-def _build_invoice_context(form):
+def _parse_items(form):
     descriptions = form.getlist('description[]')
     quantities = form.getlist('quantity[]')
     unit_prices = form.getlist('unit_price[]')
@@ -79,7 +79,11 @@ def _build_invoice_context(form):
             'unit_price': p,
             'amount': amount,
         })
+    return items, sub_total
 
+
+def _build_invoice_context(form):
+    items, sub_total = _parse_items(form)
     total_amount = sub_total
 
     return {
@@ -92,6 +96,29 @@ def _build_invoice_context(form):
         'sub_total': sub_total,
         'total_amount': total_amount,
         'amount_words': number_to_words(total_amount),
+    }
+
+
+def _build_receipt_context(form):
+    items, sub_total = _parse_items(form)
+    total_amount = sub_total
+    amount_paid = _parse_float(form.get('amount_paid', '0'))
+    balance = max(total_amount - amount_paid, 0.0)
+
+    return {
+        'receipt_number': form.get('receipt_number', 'FFR-001').strip() or 'FFR-001',
+        'client_name': form.get('client_name', ''),
+        'client_address': form.get('client_address', ''),
+        'contact_person': form.get('contact_person', ''),
+        'payment_date': form.get('payment_date', ''),
+        'payment_method': form.get('payment_method', ''),
+        'reference': form.get('reference', ''),
+        'items': items,
+        'sub_total': sub_total,
+        'total_amount': total_amount,
+        'amount_paid': amount_paid,
+        'balance': balance,
+        'amount_words': number_to_words(amount_paid),
     }
 
 
@@ -153,6 +180,36 @@ def invoice_details():
     pdf_bytes = _render_single_page_pdf(html, request.url_root)
 
     filename = f"FruityFlicks_Invoice_{ctx['invoice_number']}.pdf"
+    return Response(
+        pdf_bytes,
+        mimetype='application/pdf',
+        headers={'Content-Disposition': f'attachment; filename="{filename}"'},
+    )
+
+
+@app.route('/receipt', methods=['GET', 'POST'])
+def receipt_details():
+    if request.method == 'GET':
+        return render_template('receipt.html')
+
+    ctx = _build_receipt_context(request.form)
+
+    try:
+        db.receipts.insert_one({
+            **ctx,
+            'created_at': datetime.now(timezone.utc),
+        })
+    except Exception as e:
+        app.logger.warning('Failed to save receipt to MongoDB: %s', e)
+
+    html = render_template(
+        'receipt_pdf.html',
+        logo_url=_logo_file_url(),
+        **ctx,
+    )
+    pdf_bytes = _render_single_page_pdf(html, request.url_root)
+
+    filename = f"FruityFlicks_Receipt_{ctx['receipt_number']}.pdf"
     return Response(
         pdf_bytes,
         mimetype='application/pdf',

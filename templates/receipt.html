@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<title>Fruity Flicks Invoice</title>
+<title>Fruity Flicks Receipt</title>
 
 </head>
 <body>
 
-<form action="/invoice" method="POST">
+<form action="/receipt" method="POST">
 <div class="controls">
-  <a href="{{ url_for('receipt_details') }}" class="btn-switch">→ Switch to Receipt</a>
+  <a href="{{ url_for('invoice_details') }}" class="btn-switch">← Switch to Invoice</a>
   <button type="button" class="btn-add" onclick="addRow()">+ Add Item</button>
   <button type="submit" class="btn-download">⬇ Save & Download</button>
   <button type="button" class="btn-clear" onclick="clearForm()">✕ Clear All</button>
@@ -25,9 +25,9 @@
       <img id="logoImg" src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Fruity Flicks Logo">
     </div>
     <div class="invoice-title">
-      <h1>INVOICE</h1>
-      <div class="invoice-number-display"><p id="invoicenumber">INVOICE NUMBER</p>
-        <input type="text" name="invoice_number" id="invoiceNumber" class="editable editable-inline" value="FF-001" required>
+      <h1>RECEIPT</h1>
+      <div class="invoice-number-display"><p id="invoicenumber">RECEIPT NUMBER</p>
+        <input type="text" name="receipt_number" id="invoiceNumber" class="editable editable-inline" value="FFR-001" required>
       </div>
     </div>
   </div>
@@ -37,7 +37,7 @@
   <!-- Company Info -->
   <div class="company-info">
     <p class="tagline">Eat Smart, Live Well</p>
-    <p><span class="icon">📞</span>0256099995</p> <!--0256099996-->
+    <p><span class="icon">📞</span>0256099995</p>
     <p><span class="icon">✉</span>fruityflicks@gmail.com</p>
     <p><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="15">
           <path fill="#25D366" d="M16 0C7.164 0 0 7.163 0 16c0 2.833.738 5.49 2.027 7.8L0 32l8.418-2.004A15.93 15.93 0 0 0 16 32c8.836 0 16-7.163 16-16S24.836 0 16 0z"/>
@@ -47,18 +47,26 @@
   </div>
 
   <hr class="section-divider">
-  <!-- Bill To + Invoice Details -->
 
+  <!-- Paid To + Payment Details -->
   <div class="bill-details-row">
     <div class="bill-to">
-      <h3>Bill To</h3>
+      <h3>Paid By</h3>
       <p><span class="label">Client Name:</span><input type="text" id="client_name" name="client_name" class="editable editable-inline" required></p>
       <p><span class="label">Client Address:</span><input type="text" id="client_address" name="client_address" class="editable editable-inline" required></p>
       <p><span class="label">Contact Person:</span><input type="text" id="contact_person" name="contact_person" class="editable editable-inline" required></p>
     </div>
     <div class="invoice-details">
-      <h3>Invoice Details</h3>
-      <p><span class="label">Delivery Date:</span><input type="date" id="delivery_date" class="editable editable-inline" name="delivery_date"></p>
+      <h3>Payment Details</h3>
+      <p><span class="label">Payment Date:</span><input type="date" id="payment_date" class="editable editable-inline" name="payment_date" required></p>
+      <p><span class="label">Payment Method:</span>
+        <select id="payment_method" name="payment_method" class="editable editable-inline" required>
+          <option value="Cash">Cash</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Mobile Money">Mobile Money</option>
+        </select>
+      </p>
+      <p><span class="label">Reference / Tx ID:</span><input type="text" id="reference" name="reference" class="editable editable-inline"></p>
     </div>
   </div>
 
@@ -83,7 +91,7 @@
       </tr>
     </tbody>
   </table>
-  
+
   <!-- Totals -->
   <div class="totals-section">
     <div class="totals-table">
@@ -95,26 +103,26 @@
         <span class="label">TOTAL:</span>
         <span class="value">GHS <span id="total_amount">0.00</span></span>
       </div>
+      <div class="row">
+        <span class="label">Amount Paid:</span>
+        <span class="value">GHS <input type="number" name="amount_paid" id="amount_paid" class="editable editable-inline" value="0.00" min="0" step="0.01" oninput="calcTotals()" style="width: 90px; text-align: right;"></span>
+      </div>
+      <div class="row">
+        <span class="label">Balance:</span>
+        <span class="value">GHS <span id="balance">0.00</span></span>
+      </div>
     </div>
   </div>
+
   <!--For amount in words-->
   <div class="amount-in-words">
-  <span>Amount in Words:</span> <span id="amount_words">Zero Ghana Cedis Only</span>
-  </div>
-  <!-- Payment Info -->
-  <div class="payment-info">
-    <h3>Payment Information</h3>
-    <p><span class="label">Bank:</span> <span contenteditable="true" aria-readonly="true">Stanbic Bank</span></p>
-    <p><span class="label">Account Name:</span> <span contenteditable="true" aria-readonly="true">Fruity Flicks/Ivan Obeng Amoako</span></p>
-    <p><span class="label">Account Number:</span> <span contenteditable="true" aria-readonly="true">9040014197480</span></p>
-    <p><span class="label">Mobile Money:</span> <span contenteditable="true" aria-readonly="true">0243869554</span></p>
-    <p><span class="label">Merchant ID:</span> <span contenteditable="true" aria-readonly="true">114356</span></p>
+  <span>Amount Paid in Words:</span> <span id="amount_words">Zero Ghana Cedis Only</span>
   </div>
 
   <!-- Footer -->
   <div class="invoice-footer">
     <p class="thank-you">Thank you for your business!</p>
-    <p class="contact">For any queries regarding this invoice, please contact us at fruityflicks@gmail.com</p>
+    <p class="contact">For any queries regarding this receipt, please contact us at fruityflicks@gmail.com</p>
   </div>
 
 </div>
