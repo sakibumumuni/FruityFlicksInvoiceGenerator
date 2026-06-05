@@ -15,6 +15,7 @@ app = Flask(__name__)
 
 #client = MongoClient(os.getenv("mongodb_uri"), serverSelectionTimeoutMS=5000)
 client = pymongo.MongoClient(os.getenv("mongodb_uri"))
+print(client.list_database_names)
 # Database name has a space, so bracket lookup is required (client.fruity flicks would be a syntax error).
 db = client.fruityflicks
 invoices = db.invoices
@@ -104,28 +105,33 @@ def _build_invoice_context(form):
         'amount_words': number_to_words(total_amount),
     }
 
-
+@app.route('/invoice', methods = ['GET', 'POST'])
 def _build_receipt_context(form):
-    items, sub_total = _parse_items(form)
-    total_amount = sub_total
-    amount_paid = _parse_float(form.get('amount_paid', '0'))
-    balance = max(total_amount - amount_paid, 0.0)
+    if request.method == ['POST']:
+      """items, sub_total = _parse_items(form)
+      total_amount = sub_total
+      amount_paid = _parse_float(form.get('amount_paid', '0'))
+      balance = max(total_amount - amount_paid, 0.0)"""
 
-    return {
-        'receipt_number': form.get('receipt_number', 'FFR-001').strip() or 'FFR-001',
-        'client_name': form.get('client_name', ''),
-        'client_address': form.get('client_address', ''),
-        'contact_person': form.get('contact_person', ''),
-        'payment_date': form.get('payment_date', ''),
-        'payment_method': form.get('payment_method', ''),
-        'reference': form.get('reference', ''),
-        'items': items,
-        'sub_total': sub_total,
-        'total_amount': total_amount,
-        'amount_paid': amount_paid,
+      build = {
+        'receipt_number': request.form.get('receipt_number', 'FFR-001').strip() or 'FFR-001',
+        'client_name': request.form.get('client_name', ''),
+        'client_address': request.get('client_address', ''),
+        'contact_person': request.form.get('contact_person', ''),
+        'payment_date': request.form.get('payment_date', ''),
+        'payment_method': request.form.get('payment_method', ''),
+        'reference': request.form.get('reference', ''),
+        'itemsBody': request.form.get(itemsBody),
+        'sub_total': request.form.get(sub_total),
+        'total_amount': request.form.get( total_amount),
+        'amount_paid':request.form.get(amount_paid),
         'balance': balance,
         'amount_words': number_to_words(amount_paid),
     }
+      db.invoices.fruityflicks(build)
+    return render_template('invoice_pdf.html', build = build)
+
+
 
 
 def _logo_file_url():
@@ -213,8 +219,11 @@ def dashboard():
         error=error,
     )
 
+@app.route('/invoice', methods = ['GET', 'POST'])
+def invoice_details():"""
 
-@app.route('/invoice', methods=['GET', 'POST'])
+
+"""@app.route('/invoice', methods=['GET', 'POST'])
 def invoice_details():
     if request.method == 'GET':
         prefill = None
